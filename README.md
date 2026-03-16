@@ -33,4 +33,4 @@ docker compose up --build
 - Eğer loglarda `İki marketten fiyat gelen koleksiyon sayısı: 0` görürsen:
   - Alchemy panelinde ilgili app için NFT API'nin açık olduğundan emin ol.
   - `ALCHEMY_API_KEY` doğru app'e ait olmalı.
-  - Test: `getFloorPrice` endpoint'i contract address ile çalışmalı.
+  - Test: `getFloorPrice` endpoint'i **yalnızca** `contractAddress` ile çalışmalı.

@@ -43,13 +43,10 @@ class AlchemyMarketAdapter(MarketAdapter):
         async with httpx.AsyncClient(timeout=timeout) as client:
             tasks = []
             for collection in NFT_COLLECTIONS:
-                params = {"contractAddress": collection.contract_address}
-                if collection.alchemy_slug:
-                    params["collectionSlug"] = collection.alchemy_slug
                 tasks.append(
                     client.get(
                         f"{self.base_url}/{self.api_key}/getFloorPrice",
-                        params=params,
+                        params={"contractAddress": collection.contract_address},
                     )
                 )
             responses = await asyncio.gather(*tasks, return_exceptions=True)
