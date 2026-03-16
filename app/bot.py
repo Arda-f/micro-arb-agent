@@ -22,6 +22,10 @@ async def scan_once(state: BotState, markets: List[MarketAdapter]) -> None:
         price_maps[market.name] = prices
 
     opportunities: List[Opportunity] = []
+    market_price_counts = {
+        market.name: len(price_maps.get(market.name, {})) for market in markets
+    }
+    priced_pairs = 0
     for product_id, product_name in product_names.items():
         available_prices = []
         for market in markets:
@@ -30,6 +34,7 @@ async def scan_once(state: BotState, markets: List[MarketAdapter]) -> None:
                 available_prices.append((market.name, price))
         if len(available_prices) < 2:
             continue
+        priced_pairs += 1
         best_buy = min(available_prices, key=lambda item: item[1])
         best_sell = max(available_prices, key=lambda item: item[1])
         buy_market, buy_price = best_buy
@@ -65,7 +70,15 @@ async def scan_once(state: BotState, markets: List[MarketAdapter]) -> None:
             f"{state.opportunities[0].expected_profit:.4f} ETH.",
         )
     else:
-        state.log("INFO", "Fırsat bulunamadı.")
+        counts_text = ", ".join(
+            f"{name}={count}" for name, count in market_price_counts.items()
+        )
+        state.log(
+            "INFO",
+            "Fırsat bulunamadı. "
+            f"İki marketten fiyat gelen koleksiyon sayısı: {priced_pairs}. "
+            f"Market verisi: {counts_text}.",
+        )
 
 
 async def scan_loop(state: BotState, markets: List[MarketAdapter]) -> None:

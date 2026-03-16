@@ -41,13 +41,17 @@ class AlchemyMarketAdapter(MarketAdapter):
         prices: Dict[str, float] = {}
         timeout = httpx.Timeout(10.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
-            tasks = [
-                client.get(
-                    f"{self.base_url}/{self.api_key}/getFloorPrice",
-                    params={"collectionSlug": collection.alchemy_slug},
+            tasks = []
+            for collection in NFT_COLLECTIONS:
+                params = {"contractAddress": collection.contract_address}
+                if collection.alchemy_slug:
+                    params["collectionSlug"] = collection.alchemy_slug
+                tasks.append(
+                    client.get(
+                        f"{self.base_url}/{self.api_key}/getFloorPrice",
+                        params=params,
+                    )
                 )
-                for collection in NFT_COLLECTIONS
-            ]
             responses = await asyncio.gather(*tasks, return_exceptions=True)
         for collection, response in zip(NFT_COLLECTIONS, responses, strict=True):
             if isinstance(response, Exception):

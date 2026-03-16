@@ -28,3 +28,9 @@ docker compose up --build
 ## Notlar
 - Bu sürüm gerçek para kullanmaz.
 - `DATA_MODE=mock` ile demo verileri görürsün.
+
+## Sorun giderme
+- Eğer loglarda `İki marketten fiyat gelen koleksiyon sayısı: 0` görürsen:
+  - Alchemy panelinde ilgili app için NFT API'nin açık olduğundan emin ol.
+  - `ALCHEMY_API_KEY` doğru app'e ait olmalı.
+  - Test: `getFloorPrice` endpoint'i contract address ile çalışmalı.
