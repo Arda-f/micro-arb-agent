@@ -185,7 +185,7 @@ def render_dashboard() -> str:
     <div class="shell">
       <section class="panel">
         <h1 class="title">Mikro‑Arbitraj Ajanı</h1>
-        <p class="subtitle">Hedef: küçük bir bütçeyi (örn. 100 TL) kısa sürede en verimli şekilde büyütmek.</p>
+        <p class="subtitle">Hedef: 100 TL’yi, yasal sınırlar içinde mümkün olan her yöntemle büyütmek.</p>
         <div class="grid">
           <div class="stat">
             <h4>Tarama Durumu</h4>
@@ -231,6 +231,15 @@ def render_dashboard() -> str:
           <h4>Yasal & Etik Sınırlar</h4>
           <p>Yalnızca T.C. yasalarına uygun, şeffaf ve zarar vermeyen yöntemler değerlendirilir.</p>
           <p>Dolandırıcılık, manipülasyon, spam ve üçüncü taraflara zarar veren tüm yöntemler yasaktır.</p>
+          <p>Ajan tek bir mantığa takılı kalmaz; uygun olduğu sürece çoklu yöntemler dener.</p>
+        </div>
+        <div class="stat" style="margin-top:18px;">
+          <h4>Çoklu Strateji Havuzu</h4>
+          <p>Bu havuz, farklı yasal yolları aynı anda değerlendirir ve en uygulanabilir olanı öne çıkarır.</p>
+          <p>- NFT market arası fiyat farkı</p>
+          <p>- Domain/oyun içi item fiyat farkı (API gelince)</p>
+          <p>- Kampanya/indirim takibi (resmî kaynaklar)</p>
+          <p>- Mikro görev/ödül avcılığı (spam olmadan)</p>
         </div>
       </section>
       <section class="panel">
