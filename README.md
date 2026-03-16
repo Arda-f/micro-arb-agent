@@ -12,6 +12,9 @@ python -m venv .venv
 pip install -r requirements.txt
 set DATA_MODE=real
 set ALCHEMY_API_KEY=YOUR_KEY_HERE
+set AI_ENABLED=1
+set AI_BASE_URL=http://localhost:1234/v1
+set AI_MODEL=openai/gpt-oss-20b
 uvicorn app.main:app --reload
 ```
 
@@ -22,6 +25,9 @@ Tarayıcı: `http://127.0.0.1:8000`
 ```bash
 set DATA_MODE=real
 set ALCHEMY_API_KEY=YOUR_KEY_HERE
+set AI_ENABLED=1
+set AI_BASE_URL=http://localhost:1234/v1
+set AI_MODEL=openai/gpt-oss-20b
 docker compose up --build
 ```
 

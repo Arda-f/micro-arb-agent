@@ -5,6 +5,7 @@ from typing import Dict, List
 import asyncio
 
 from .markets import MarketAdapter, product_lookup
+from .ai import ai_score_opportunity, heuristic_score
 from .state import BotState, Opportunity
 
 
@@ -57,10 +58,37 @@ async def scan_once(state: BotState, markets: List[MarketAdapter]) -> None:
                 )
             )
 
+    opportunities_sorted = sorted(
+        opportunities, key=lambda item: item.expected_profit, reverse=True
+    )[:40]
+
+    # AI scoring for top items with simple cache
+    for opp in opportunities_sorted[:3]:
+        cache_key = (
+            opp.product_id,
+            opp.buy_market,
+            opp.sell_market,
+            opp.buy_price,
+            opp.sell_price,
+        )
+        cached = state.ai_cache.get(cache_key)
+        if cached is None:
+            ai_result = await ai_score_opportunity(opp, state.fee_pct)
+            if ai_result is None:
+                ai_result = heuristic_score(opp, state.fee_pct)
+                if not state.ai_fallback_logged:
+                    state.log("WARN", "AI erişimi yok, heuristik skora düşüldü.")
+                    state.ai_fallback_logged = True
+            state.ai_cache[cache_key] = ai_result
+            if len(state.ai_cache) > 500:
+                state.ai_cache.clear()
+            cached = ai_result
+        opp.ai_score = cached.get("score")
+        opp.ai_rationale = cached.get("rationale")
+        opp.ai_risk_flags = cached.get("risk_flags", [])
+
     async with state.lock:
-        state.opportunities = sorted(
-            opportunities, key=lambda item: item.expected_profit, reverse=True
-        )[:40]
+        state.opportunities = opportunities_sorted
         state.last_scan = _utc_now()
 
     if opportunities:

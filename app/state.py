@@ -17,6 +17,9 @@ class Opportunity:
     spread: float
     expected_profit: float
     timestamp: str
+    ai_score: float | None = None
+    ai_rationale: str | None = None
+    ai_risk_flags: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -36,6 +39,8 @@ class BotState:
     opportunities: List[Opportunity] = field(default_factory=list)
     logs: List[LogEntry] = field(default_factory=list)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    ai_cache: dict = field(default_factory=dict)
+    ai_fallback_logged: bool = False
 
     def log(self, level: str, message: str) -> None:
         timestamp = datetime.utcnow().isoformat(timespec="seconds") + "Z"

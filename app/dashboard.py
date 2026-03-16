@@ -117,6 +117,15 @@ def render_dashboard() -> str:
         color: var(--accent);
         font-weight: 600;
       }
+      .ai-note {
+        color: var(--muted);
+        font-size: 12px;
+        display: inline-block;
+        max-width: 280px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .log {
         font-size: 12px;
         color: var(--muted);
@@ -185,6 +194,8 @@ def render_dashboard() -> str:
               <th>Alış</th>
               <th>Satış</th>
               <th>Kâr (ETH)</th>
+              <th>AI Skor</th>
+              <th>AI Notu</th>
               <th>Zaman</th>
             </tr>
           </thead>
@@ -209,6 +220,8 @@ def render_dashboard() -> str:
             <td>${opp.buy_market} · ${opp.buy_price.toFixed(4)} ETH</td>
             <td>${opp.sell_market} · ${opp.sell_price.toFixed(4)} ETH</td>
             <td class="profit">${opp.expected_profit.toFixed(4)} ETH</td>
+            <td>${(opp.ai_score ?? '-')}</td>
+            <td><span class="ai-note" title="${opp.ai_rationale ?? ''}">${opp.ai_rationale ?? '-'}</span></td>
             <td>${opp.timestamp}</td>
           </tr>
         `;
