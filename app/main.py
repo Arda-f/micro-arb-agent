@@ -51,6 +51,11 @@ async def status() -> dict:
             "last_scan": state.last_scan,
             "opportunities": [opp.__dict__ for opp in state.opportunities],
             "logs": [log.__dict__ for log in state.logs[:12]],
+            "config": {
+                "scan_interval": state.scan_interval,
+                "fee_pct": state.fee_pct,
+                "min_profit": state.min_profit,
+            },
         }
 
 

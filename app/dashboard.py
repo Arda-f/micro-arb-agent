@@ -61,6 +61,12 @@ def render_dashboard() -> str:
         border-radius: 16px;
         padding: 16px;
       }
+      .stat p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
       .stat h4 {
         margin: 0 0 8px;
         font-size: 12px;
@@ -164,6 +170,11 @@ def render_dashboard() -> str:
           <h4>İşlem Günlüğü</h4>
           <div id="logs" class="log"></div>
         </div>
+        <div class="stat" style="margin-top:18px;">
+          <h4>Kâr Simülasyonu (1 Adet)</h4>
+          <strong id="simHeadline">-</strong>
+          <p id="simDetails">-</p>
+        </div>
       </section>
       <section class="panel">
         <h2 class="title" style="font-size: clamp(22px, 2.6vw, 32px);">Fırsat Akışı</h2>
@@ -215,6 +226,26 @@ def render_dashboard() -> str:
           .map(item => `${item.timestamp} · ${item.level} · ${item.message}`)
           .slice(0, 8)
           .join('<br/>');
+
+        const simHeadline = document.getElementById('simHeadline');
+        const simDetails = document.getElementById('simDetails');
+        if (!data.opportunities.length) {
+          simHeadline.textContent = 'Fırsat yok';
+          simDetails.textContent = 'Şu an iki markette aynı koleksiyon için anlamlı fiyat farkı görünmüyor.';
+          return;
+        }
+        const top = data.opportunities[0];
+        const feePct = data.config?.fee_pct ?? 0.05;
+        const buyCost = top.buy_price * (1 + feePct);
+        const sellRevenue = top.sell_price * (1 - feePct);
+        const netProfit = sellRevenue - buyCost;
+        const roi = buyCost > 0 ? (netProfit / buyCost) * 100 : 0;
+        simHeadline.textContent = `${top.product_name} · ${netProfit.toFixed(4)} ETH`;
+        simDetails.textContent =
+          `Tahmini bütçe: ${buyCost.toFixed(4)} ETH. ` +
+          `Satış geliri: ${sellRevenue.toFixed(4)} ETH. ` +
+          `ROI: %${roi.toFixed(2)}. ` +
+          `Not: Bu hesaplama floor fiyat + varsayılan %${(feePct*100).toFixed(1)} ücretle yapılır; gas/likidite/royalty dahil değildir.`;
       }
 
       refresh();
