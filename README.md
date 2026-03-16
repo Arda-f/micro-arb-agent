@@ -1,6 +1,7 @@
 # Mikro-Arbitraj Ajanı (Prototip)
 
-Bu prototip iki modla çalışır ve hedefi küçük bütçeyle hızlı fırsatları analiz etmektir:
+Bu prototip iki modla çalışır ve hedefi küçük bütçeyle hızlı fırsatları analiz etmektir.
+Yalnızca T.C. yasalarına uygun, şeffaf ve zarar vermeyen yöntemler değerlendirilir:
 - `DATA_MODE=mock`: Mock marketler (test amaçlı).
 - `DATA_MODE=real`: Gerçek NFT verisi (Alchemy API ile OpenSea + LooksRare).
 

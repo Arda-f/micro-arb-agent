@@ -227,6 +227,11 @@ def render_dashboard() -> str:
           <p id="simDetails">-</p>
           <p id="simWarning">Bu sadece tahmini hesaplamadır; gerçek kazanç garanti edilmez.</p>
         </div>
+        <div class="stat" style="margin-top:18px;">
+          <h4>Yasal & Etik Sınırlar</h4>
+          <p>Yalnızca T.C. yasalarına uygun, şeffaf ve zarar vermeyen yöntemler değerlendirilir.</p>
+          <p>Dolandırıcılık, manipülasyon, spam ve üçüncü taraflara zarar veren tüm yöntemler yasaktır.</p>
+        </div>
       </section>
       <section class="panel">
         <h2 class="title" style="font-size: clamp(22px, 2.6vw, 32px);">Fırsat Akışı</h2>
@@ -311,13 +316,24 @@ def render_dashboard() -> str:
         const maxUnits = buyCost > 0 ? Math.floor(budgetEth / buyCost) : 0;
         const totalProfitEth = netProfit * maxUnits;
         const totalProfitTl = totalProfitEth * ethTry;
-        simHeadline.textContent = `${top.product_name} · ~${totalProfitEth.toFixed(4)} ETH`;
-        simDetails.textContent =
-          `Bütçe: ${budgetTl.toFixed(0)} TL (~${budgetEth.toFixed(4)} ETH). ` +
-          `1 adet maliyet: ${buyCost.toFixed(4)} ETH. ` +
-          `Alınabilir adet: ${maxUnits}. ` +
-          `Tahmini toplam kâr: ${totalProfitEth.toFixed(4)} ETH (~${totalProfitTl.toFixed(0)} TL). ` +
-          `ROI: %${roi.toFixed(2)}.`;
+        const minRequiredEth = buyCost;
+        const minRequiredTl = minRequiredEth * ethTry;
+        if (maxUnits === 0) {
+          simHeadline.textContent = `${top.product_name} · Bütçe yetmiyor`;
+          simDetails.textContent =
+            `Bütçe: ${budgetTl.toFixed(0)} TL (~${budgetEth.toFixed(4)} ETH). ` +
+            `1 adet maliyet: ${buyCost.toFixed(4)} ETH (~${minRequiredTl.toFixed(0)} TL). ` +
+            `Alınabilir adet: 0. ` +
+            `ROI: %0.00.`;
+        } else {
+          simHeadline.textContent = `${top.product_name} · ~${totalProfitEth.toFixed(4)} ETH`;
+          simDetails.textContent =
+            `Bütçe: ${budgetTl.toFixed(0)} TL (~${budgetEth.toFixed(4)} ETH). ` +
+            `1 adet maliyet: ${buyCost.toFixed(4)} ETH. ` +
+            `Alınabilir adet: ${maxUnits}. ` +
+            `Tahmini toplam kâr: ${totalProfitEth.toFixed(4)} ETH (~${totalProfitTl.toFixed(0)} TL). ` +
+            `ROI: %${roi.toFixed(2)}.`;
+        }
         simWarning.textContent =
           `Not: Bu hesaplama floor fiyat + varsayılan %${(feePct*100).toFixed(1)} ücretle yapılır; ` +
           'gas/likidite/royalty ve satış süresi dahil değildir.';
