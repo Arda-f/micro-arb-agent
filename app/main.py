@@ -5,12 +5,15 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import asyncio
 import os
+from dotenv import load_dotenv
 
 from .bot import scan_loop
 from .dashboard import render_dashboard
 from .markets import build_markets
 from .state import BotState
 
+
+load_dotenv()
 
 app = FastAPI(title="Mikro-Arbitraj Ajanı")
 state = BotState()
