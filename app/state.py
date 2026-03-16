@@ -31,7 +31,7 @@ class BotState:
     running: bool = True
     scan_interval: float = 5.0
     fee_pct: float = 0.05
-    min_profit: float = 0.2
+    min_profit: float = 0.01
     last_scan: Optional[str] = None
     opportunities: List[Opportunity] = field(default_factory=list)
     logs: List[LogEntry] = field(default_factory=list)

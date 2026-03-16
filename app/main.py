@@ -4,16 +4,17 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import asyncio
+import os
 
 from .bot import scan_loop
 from .dashboard import render_dashboard
-from .markets import build_mock_markets
+from .markets import build_markets
 from .state import BotState
 
 
 app = FastAPI(title="Mikro-Arbitraj Ajanı")
 state = BotState()
-markets = build_mock_markets()
+markets = build_markets()
 
 
 class ToggleRequest(BaseModel):
@@ -28,6 +29,9 @@ class ConfigRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event() -> None:
+    data_mode = os.getenv("DATA_MODE", "real").lower()
+    if data_mode != "mock" and not os.getenv("ALCHEMY_API_KEY"):
+        state.log("WARN", "ALCHEMY_API_KEY yok. Gerçek veri çekilemez.")
     asyncio.create_task(scan_loop(state, markets))
 
 

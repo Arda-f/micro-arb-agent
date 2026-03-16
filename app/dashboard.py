@@ -173,7 +173,7 @@ def render_dashboard() -> str:
               <th>Varlık</th>
               <th>Alış</th>
               <th>Satış</th>
-              <th>Kâr</th>
+              <th>Kâr (ETH)</th>
               <th>Zaman</th>
             </tr>
           </thead>
@@ -195,9 +195,9 @@ def render_dashboard() -> str:
         return `
           <tr>
             <td>${opp.product_name}</td>
-            <td>${opp.buy_market} · $${opp.buy_price.toFixed(2)}</td>
-            <td>${opp.sell_market} · $${opp.sell_price.toFixed(2)}</td>
-            <td class="profit">$${opp.expected_profit.toFixed(2)}</td>
+            <td>${opp.buy_market} · ${opp.buy_price.toFixed(4)} ETH</td>
+            <td>${opp.sell_market} · ${opp.sell_price.toFixed(4)} ETH</td>
+            <td class="profit">${opp.expected_profit.toFixed(4)} ETH</td>
             <td>${opp.timestamp}</td>
           </tr>
         `;

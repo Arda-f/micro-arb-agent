@@ -23,16 +23,15 @@ async def scan_once(state: BotState, markets: List[MarketAdapter]) -> None:
 
     opportunities: List[Opportunity] = []
     for product_id, product_name in product_names.items():
-        best_buy = None
-        best_sell = None
+        available_prices = []
         for market in markets:
-            price = price_maps[market.name][product_id]
-            if best_buy is None or price < best_buy[1]:
-                best_buy = (market.name, price)
-            if best_sell is None or price > best_sell[1]:
-                best_sell = (market.name, price)
-        if not best_buy or not best_sell:
+            price = price_maps.get(market.name, {}).get(product_id)
+            if price is not None:
+                available_prices.append((market.name, price))
+        if len(available_prices) < 2:
             continue
+        best_buy = min(available_prices, key=lambda item: item[1])
+        best_sell = max(available_prices, key=lambda item: item[1])
         buy_market, buy_price = best_buy
         sell_market, sell_price = best_sell
         spread = round(sell_price - buy_price, 2)
@@ -63,7 +62,7 @@ async def scan_once(state: BotState, markets: List[MarketAdapter]) -> None:
         state.log(
             "INFO",
             f"{len(opportunities)} fırsat bulundu. En yüksek kâr: "
-            f"${state.opportunities[0].expected_profit:.2f}.",
+            f"{state.opportunities[0].expected_profit:.4f} ETH.",
         )
     else:
         state.log("INFO", "Fırsat bulunamadı.")
