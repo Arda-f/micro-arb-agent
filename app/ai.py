@@ -28,9 +28,10 @@ def _build_prompt(opp: Opportunity, fee_pct: float) -> List[Dict[str, str]]:
 
     system = (
         "You are a trading risk assistant for NFT micro-arbitrage. "
+        "The user's goal is to grow a small budget fast, but you must warn "
+        "about liquidity, execution risk, and anomalous spreads. "
         "Return a strict JSON object only. "
-        "Use concise Turkish for rationale. "
-        "Consider liquidity risk, fee impact, and anomalous spreads."
+        "Use concise Turkish for rationale."
     )
     user = {
         "opportunity": {

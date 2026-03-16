@@ -67,6 +67,35 @@ def render_dashboard() -> str:
         font-size: 12px;
         line-height: 1.5;
       }
+      .field {
+        display: grid;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .field label {
+        font-size: 11px;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .field input {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(148,240,255,0.16);
+        border-radius: 10px;
+        padding: 8px 10px;
+        color: var(--ink);
+        font-family: "Space Grotesk", system-ui, sans-serif;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(244, 208, 111, 0.12);
+        color: var(--accent);
+        font-size: 12px;
+      }
       .stat h4 {
         margin: 0 0 8px;
         font-size: 12px;
@@ -156,7 +185,7 @@ def render_dashboard() -> str:
     <div class="shell">
       <section class="panel">
         <h1 class="title">Mikro‑Arbitraj Ajanı</h1>
-        <p class="subtitle">5 markette düşük riskli dijital varlıkları tarar, fırsatları sıralar.</p>
+        <p class="subtitle">Hedef: küçük bir bütçeyi (örn. 100 TL) kısa sürede en verimli şekilde büyütmek.</p>
         <div class="grid">
           <div class="stat">
             <h4>Tarama Durumu</h4>
@@ -180,9 +209,23 @@ def render_dashboard() -> str:
           <div id="logs" class="log"></div>
         </div>
         <div class="stat" style="margin-top:18px;">
-          <h4>Kâr Simülasyonu (1 Adet)</h4>
+          <h4>Hızlı Kâr Simülasyonu</h4>
+          <div class="pill">Kısa vadeli hedef</div>
+          <div class="field">
+            <label for="budgetTl">Bütçe (TL)</label>
+            <input id="budgetTl" type="number" min="0" step="10" value="100" />
+          </div>
+          <div class="field">
+            <label for="ethTry">ETH/TRY (manuel)</label>
+            <input id="ethTry" type="number" min="0" step="100" value="100000" />
+          </div>
+          <div class="field">
+            <label for="allocPct">İşlem Payı (%)</label>
+            <input id="allocPct" type="number" min="10" max="100" step="5" value="100" />
+          </div>
           <strong id="simHeadline">-</strong>
           <p id="simDetails">-</p>
+          <p id="simWarning">Bu sadece tahmini hesaplamadır; gerçek kazanç garanti edilmez.</p>
         </div>
       </section>
       <section class="panel">
@@ -195,7 +238,7 @@ def render_dashboard() -> str:
               <th>Satış</th>
               <th>Kâr (ETH)</th>
               <th>AI Skor</th>
-              <th>AI Notu</th>
+              <th style='width: 150px'>AI Notu</th>
               <th>Zaman</th>
             </tr>
           </thead>
@@ -227,6 +270,12 @@ def render_dashboard() -> str:
         `;
       }
 
+      function getNumber(id, fallback) {
+        const raw = document.getElementById(id).value;
+        const num = Number(raw);
+        return Number.isFinite(num) ? num : fallback;
+      }
+
       async function refresh() {
         const res = await fetch('/api/status');
         const data = await res.json();
@@ -242,27 +291,43 @@ def render_dashboard() -> str:
 
         const simHeadline = document.getElementById('simHeadline');
         const simDetails = document.getElementById('simDetails');
+        const simWarning = document.getElementById('simWarning');
         if (!data.opportunities.length) {
           simHeadline.textContent = 'Fırsat yok';
           simDetails.textContent = 'Şu an iki markette aynı koleksiyon için anlamlı fiyat farkı görünmüyor.';
+          simWarning.textContent = 'Likidite yoksa veya fiyatlar anormal ise kısa vadede işlem yapmak risklidir.';
           return;
         }
         const top = data.opportunities[0];
         const feePct = data.config?.fee_pct ?? 0.05;
+        const budgetTl = getNumber('budgetTl', 100);
+        const ethTry = getNumber('ethTry', 100000);
+        const allocPct = Math.min(100, Math.max(10, getNumber('allocPct', 100)));
+        const budgetEth = ethTry > 0 ? (budgetTl / ethTry) * (allocPct / 100) : 0;
         const buyCost = top.buy_price * (1 + feePct);
         const sellRevenue = top.sell_price * (1 - feePct);
         const netProfit = sellRevenue - buyCost;
         const roi = buyCost > 0 ? (netProfit / buyCost) * 100 : 0;
-        simHeadline.textContent = `${top.product_name} · ${netProfit.toFixed(4)} ETH`;
+        const maxUnits = buyCost > 0 ? Math.floor(budgetEth / buyCost) : 0;
+        const totalProfitEth = netProfit * maxUnits;
+        const totalProfitTl = totalProfitEth * ethTry;
+        simHeadline.textContent = `${top.product_name} · ~${totalProfitEth.toFixed(4)} ETH`;
         simDetails.textContent =
-          `Tahmini bütçe: ${buyCost.toFixed(4)} ETH. ` +
-          `Satış geliri: ${sellRevenue.toFixed(4)} ETH. ` +
-          `ROI: %${roi.toFixed(2)}. ` +
-          `Not: Bu hesaplama floor fiyat + varsayılan %${(feePct*100).toFixed(1)} ücretle yapılır; gas/likidite/royalty dahil değildir.`;
+          `Bütçe: ${budgetTl.toFixed(0)} TL (~${budgetEth.toFixed(4)} ETH). ` +
+          `1 adet maliyet: ${buyCost.toFixed(4)} ETH. ` +
+          `Alınabilir adet: ${maxUnits}. ` +
+          `Tahmini toplam kâr: ${totalProfitEth.toFixed(4)} ETH (~${totalProfitTl.toFixed(0)} TL). ` +
+          `ROI: %${roi.toFixed(2)}.`;
+        simWarning.textContent =
+          `Not: Bu hesaplama floor fiyat + varsayılan %${(feePct*100).toFixed(1)} ücretle yapılır; ` +
+          'gas/likidite/royalty ve satış süresi dahil değildir.';
       }
 
       refresh();
       setInterval(refresh, 2000);
+      ['budgetTl', 'ethTry', 'allocPct'].forEach(id => {
+        document.getElementById(id).addEventListener('input', refresh);
+      });
     </script>
   </body>
 </html>
